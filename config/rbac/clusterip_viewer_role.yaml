@@ -1,0 +1,27 @@
+# permissions for end users to view clusterips.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: clusterip-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: cluster-ip
+    app.kubernetes.io/part-of: cluster-ip
+    app.kubernetes.io/managed-by: kustomize
+  name: clusterip-viewer-role
+rules:
+- apiGroups:
+  - operator.kyma-project.io
+  resources:
+  - clusterips
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - operator.kyma-project.io
+  resources:
+  - clusterips/status
+  verbs:
+  - get
