@@ -18,12 +18,16 @@ package controller
 
 import (
 	"context"
+	"encoding/json"
+	"io/ioutil"
+	"net/http"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
+	"github.com/kyma-project/cluster-ip/api/v1alpha1"
 	operatorv1alpha1 "github.com/kyma-project/cluster-ip/api/v1alpha1"
 )
 
@@ -47,10 +51,22 @@ type ClusterIPReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.14.1/pkg/reconcile
 func (r *ClusterIPReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
+	var clusterIP v1alpha1.ClusterIP
+	logger := log.FromContext(ctx)
+	var result map[string]any
+	resp, err := http.Get("http://ifconfig.me/all.json")
+	if err != nil {
+		panic(err)
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	json.Unmarshal(body, &result)
 
-	// TODO(user): your logic here
-
+	defer resp.Body.Close()
+	logger.Info("Response", "status", resp.Status, "body", string(body))
+	ip := result["ip_addr"]
+	logger.Info("Response", "IP", ip)
+	r.Get(ctx, req.NamespacedName, &clusterIP)
+	clusterIP.Status.IP = 
 	return ctrl.Result{}, nil
 }
 

@@ -43,6 +43,8 @@ spec:
           status:
             description: ClusterIPStatus defines the observed state of ClusterIP
             properties:
+              ip:
+                type: string
               state:
                 description: State signifies current state of Module CR. Value can
                   be one of ("Ready", "Processing", "Error", "Deleting").
@@ -53,6 +55,7 @@ spec:
                 - Error
                 type: string
             required:
+            - ip
             - state
             type: object
         type: object

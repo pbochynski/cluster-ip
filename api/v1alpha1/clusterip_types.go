@@ -36,6 +36,7 @@ type ClusterIPStatus struct {
 	// +kubebuilder:validation:Required
 	// +kubebuilder:validation:Enum=Processing;Deleting;Ready;Error
 	State string `json:"state"`
+	IP    string `json:"ip"`
 }
 
 //+kubebuilder:object:root=true
