@@ -28,6 +28,11 @@ type ClusterIPSpec struct {
 	// Foo is an example field of ClusterIP. Edit clusterip_types.go to remove/update
 	Foo string `json:"foo,omitempty"`
 }
+type ZoneIP struct {
+	Zone           string      `json:"zone"`
+	IP             string      `json:"ip"`
+	LastUpdateTime metav1.Time `json:"lastUpdateTime,omitempty"`
+}
 
 // ClusterIPStatus defines the observed state of ClusterIP
 type ClusterIPStatus struct {
@@ -35,8 +40,8 @@ type ClusterIPStatus struct {
 	// Value can be one of ("Ready", "Processing", "Error", "Deleting").
 	// +kubebuilder:validation:Required
 	// +kubebuilder:validation:Enum=Processing;Deleting;Ready;Error
-	State string `json:"state"`
-	IP    string `json:"ip"`
+	State string   `json:"state"`
+	Zones []ZoneIP `json:"zones"`
 }
 
 //+kubebuilder:object:root=true
