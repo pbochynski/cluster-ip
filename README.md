@@ -59,37 +59,36 @@ with such output:
 
 
 ```
-                               ┌───────────────────────┐
-                               │       zone a          │
-                               │ ┌─────────────────┐   │
-                               │ │ hostname: node1 │   │
-                               │ │ zone: a         │   │
-                               │ ├─────────────────┤   │                      
-                               │ │   cluster-ip    │   │   manage      ┌───────────────────────────────────────────┐
-                               │ │    operator     ├───┼──────────────►│kind: ClusterIP                            │
-                               │ ├─────────────────┤   │               │metadata:                                  │
-                               │ │   cluster-ip    │   │               │  name: clusterip-sample                   │
-                            ┌──┼─┤     worker      ├───┼──────┐        │spec:                                      │
-                            │  │ └─────────────────┘   │      │        │  nodeSpreadLabel:                         │
-┌───────────────┐           │  │                       │      │        │    topology.kubernetes.io/zone            │
-│ External host │◄──http────┤  └───────────────────────┘    update IP  │status:                                    │
-│ (ifconfig.me) │   get my  │                                 │        │  state: Ready                             │
-└───────────────┘   IP      │                                 │        │  nodeIPs:                                 │
-                            │  ┌───────────────────────┐      │        │  - ip: 74.234.131.27                      │
-                            │  │       zone b          │      └────────┼──► lastUpdateTime: "2023-02-15T23:08:12Z" │
-                            │  │ ┌─────────────────┐   │               │    nodeLabel: zone-a                      │
-                            │  │ │ hostname: node2 │   │               │  - ip: 74.234.189.156                     │
-                            │  │ │ zone: b         │   │      ┌────────┼──► lastUpdateTime: "2023-02-15T23:08:12Z" │
-                            │  │ ├─────────────────┤   │      │        │    nodeLabel: zone-b                      │
-                            │  │ │   cluster-ip    │   │      │        └───────────────────────────────────────────┘
-                            └──┼─┤     worker      ├───┼──────┘
-                               │ └─────────────────┘   │   update IP
-                               │                       │
-                               │ ┌─────────────────┐   │
-                               │ │ hostname: node3 │   │
-                               │ │ zone: b         │   │
-                               │ └─────────────────┘   │
-                               │                       │
-                               └───────────────────────┘
+                       ┌───────────────────────┐
+                       │       zone a          │
+                       │ ┌─────────────────┐   │
+                       │ │ hostname: node1 │   │
+                       │ │ zone: a         │   │
+                       │ ├─────────────────┤   │
+                       │ │   cluster-ip    │   │   manage      ┌────────────────────────────────┐
+                       │ │    operator     ├───┼──────────────►│kind: ClusterIP                 │
+                       │ ├─────────────────┤   │               │metadata:                       │
+                       │ │   cluster-ip    │   │               │  name: clusterip-sample        │
+                    ┌──┼─┤     worker      ├───┼──────┐        │spec:                           │
+                    │  │ └─────────────────┘   │      │        │  nodeSpreadLabel:              │
+┌───────────────┐   │  │                       │      │        │    topology.kubernetes.io/zone │
+│ External host │◄──┤  └───────────────────────┘    update IP  │status:                         │
+│ (ifconfig.me) │   │                                 │        │  state: Ready                  │
+└───────────────┘   │                                 │        │  nodeIPs:                      │
+                    │  ┌───────────────────────┐      │        │  - ip: 74.234.131.27           │
+                    │  │       zone b          │      └────────┼──► lastUpdateTime: "23:08:12Z" │
+                    │  │ ┌─────────────────┐   │               │    nodeLabel: zone-a           │
+                    │  │ │ hostname: node2 │   │               │  - ip: 74.234.189.156          │
+                    │  │ │ zone: b         │   │      ┌────────┼──► lastUpdateTime: "23:08:12Z" │
+                    │  │ ├─────────────────┤   │      │        │    nodeLabel: zone-b           │
+                    │  │ │   cluster-ip    │   │      │        └────────────────────────────────┘
+                    └──┼─┤     worker      ├───┼──────┘
+                       │ └─────────────────┘   │   update IP
+                       │                       │
+                       │ ┌─────────────────┐   │
+                       │ │ hostname: node3 │   │
+                       │ │ zone: b         │   │
+                       │ └─────────────────┘   │
+                       │                       │
+                       └───────────────────────┘
 ```
-
