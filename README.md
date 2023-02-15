@@ -3,6 +3,11 @@ Kubernetes component to determine cluster IP
 
 ## Usage
 
+Instalation:
+```
+kubectl apply -f https://raw.githubusercontent.com/pbochynski/cluster-ip/main/config/samples/zones-clusterip.yaml
+```
+
 Create a resource:
 
 ```sh
@@ -12,6 +17,7 @@ kind: ClusterIP
 metadata:
   name: clusterip-sample
 spec:
+  nodeSpreadLabel: kubernetes.io/hostname
 EOF
 ```
 
@@ -32,30 +38,19 @@ kind: ClusterIP
 metadata:
   name: clusterip-sample
   namespace: default
-
-...
-
+spec:
+  nodeSpreadLabel: kubernetes.io/hostname
 status:
-  state: Ready
-  zones:
-  - ip: 74.234.189.156
-    lastUpdateTime: "2023-02-14T08:57:09Z"
-    zone: westeurope-3
-  - ip: 108.143.196.141
-    lastUpdateTime: "2023-02-14T08:57:09Z"
-    zone: westeurope-1
-  - ip: 74.234.131.27
-    lastUpdateTime: "2023-02-14T08:57:09Z"
-    zone: westeurope-2
+  nodeIPs:
+  - ip: 141.95.98.214
+    lastUpdateTime: "2023-02-15T19:36:16Z"
 ```
 
 You can extract all the IPs in all availability zones using this command
 ```sh
- kubectl get clusterips/clusterip-sample -ojson | jq -r '.status.zones[].ip'
+ kubectl get clusterips/clusterip-sample -ojson | jq -r '.status.nodeIPs[].ip'
 ```
 with such output:
 ```
-74.234.189.156
-108.143.196.141
-74.234.131.27
+141.95.98.214
 ```

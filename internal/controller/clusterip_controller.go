@@ -34,8 +34,13 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/predicate"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	"github.com/kyma-project/cluster-ip/api/v1alpha1"
 	operatorv1alpha1 "github.com/kyma-project/cluster-ip/api/v1alpha1"
@@ -62,17 +67,19 @@ func (r *ClusterIPReconciler) MyImageName(ctx context.Context) string {
 		err := r.Get(ctx, types.NamespacedName{Namespace: ns, Name: name}, &pod)
 		if err != nil {
 			logger.Error(err, "Can't find my pod", "ns", ns, "pod", name)
-			return ""
+			panic(err)
 		}
 		for _, c := range pod.Spec.Containers {
 			if s.Contains(c.Image, "cluster-ip") {
 				imageName = c.Image
 				logger.Info("Found my container", "image", c.Image)
 				break
-			} else {
-				logger.Info("Skipping container", "image", c.Image)
 			}
 		}
+	}
+	if imageName == "" {
+		err := fmt.Errorf("Cannot find controller image")
+		panic(err)
 	}
 	return imageName
 }
@@ -221,6 +228,26 @@ func (r *ClusterIPReconciler) ReconcileWorker(ctx context.Context, req ctrl.Requ
 
 	return ctrl.Result{}, nil
 }
+func (r *ClusterIPReconciler) NodeWatcherToRequests(node client.Object) []reconcile.Request {
+	ctx := context.TODO()
+	var clusterIPs v1alpha1.ClusterIPList
+	err := r.List(ctx, &clusterIPs)
+	if err != nil {
+		return []reconcile.Request{}
+	}
+	logger := log.FromContext(ctx)
+	logger.Info("NodeWatcher invoked", "node", node.GetName(), "clusterIP count", len(clusterIPs.Items))
+	requests := make([]reconcile.Request, len(clusterIPs.Items))
+	for i, item := range clusterIPs.Items {
+		requests[i] = reconcile.Request{
+			NamespacedName: types.NamespacedName{
+				Name:      item.GetName(),
+				Namespace: item.GetNamespace(),
+			},
+		}
+	}
+	return requests
+}
 
 //+kubebuilder:rbac:groups=operator.kyma-project.io,resources=clusterips,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=operator.kyma-project.io,resources=clusterips/status,verbs=get;update;patch
@@ -249,10 +276,9 @@ func (r *ClusterIPReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	if err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
-	logger.Info("Request", "clusterIP", clusterIP)
 	image := r.MyImageName(ctx)
 	zones := r.GetNodeLabels(ctx, clusterIP.Spec.NodeSpreadLabel)
-	logger.Info("NodeLabels", "label", clusterIP.Spec.NodeSpreadLabel, "result", zones)
+	logger.Info("Reconciliation", "cr", clusterIP.Name, "label", clusterIP.Spec.NodeSpreadLabel, "values", zones)
 	allDone := true
 	updateStatus := false
 	for _, z := range zones {
@@ -272,7 +298,6 @@ func (r *ClusterIPReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 				break
 			}
 		}
-		logger.Info("Reconciliation", "Zone", z, "found", found, "allDone", allDone, "cachedIP", r.NodeIP[z])
 
 		if r.NodeIP[z] == "" {
 			r.CreateOrUpdatePod(ctx, z, clusterIP.Spec.NodeSpreadLabel, image)
@@ -321,5 +346,6 @@ func validIP4(ipAddress string) bool {
 func (r *ClusterIPReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&operatorv1alpha1.ClusterIP{}).
+		Watches(&source.Kind{Type: &corev1.Node{}}, handler.EnqueueRequestsFromMapFunc(r.NodeWatcherToRequests), builder.WithPredicates(predicate.ResourceVersionChangedPredicate{})).
 		Complete(r)
 }
