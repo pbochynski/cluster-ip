@@ -9,4 +9,4 @@ metadata:
     app.kubernetes.io/created-by: cluster-ip
   name: clusterip-zones
 spec:
-  nodeSpreadLabel: kubernetes.io/hostname
+  nodeSpreadLabel: topology.kubernetes.io/zone

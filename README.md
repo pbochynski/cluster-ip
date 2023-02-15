@@ -10,14 +10,14 @@ kubectl apply -f https://raw.githubusercontent.com/pbochynski/cluster-ip/main/cl
 
 Create a resource:
 
-```sh
+```yaml
 cat <<EOF | kubectl apply -f -
 apiVersion: operator.kyma-project.io/v1alpha1
 kind: ClusterIP
 metadata:
   name: clusterip-sample
 spec:
-  nodeSpreadLabel: kubernetes.io/hostname
+  nodeSpreadLabel: kubernetes.io/hostname  # topology.kubernetes.io/zone is default
 EOF
 ```
 
@@ -48,9 +48,48 @@ status:
 
 You can extract all the IPs in all availability zones using this command
 ```sh
- kubectl get clusterips/clusterip-sample -ojson | jq -r '.status.nodeIPs[].ip'
+kubectl get clusterips/clusterip-sample -ojson | jq -r '.status.nodeIPs[].ip'
 ```
 with such output:
 ```
 141.95.98.214
 ```
+
+## How does it work?
+
+
+```
+                               ┌───────────────────────┐
+                               │       zone a          │
+                               │ ┌─────────────────┐   │
+                               │ │ hostname: node1 │   │
+                               │ │ zone: a         │   │
+                               │ ├─────────────────┤   │                      
+                               │ │   cluster-ip    │   │   manage      ┌───────────────────────────────────────────┐
+                               │ │    operator     ├───┼──────────────►│kind: ClusterIP                            │
+                               │ ├─────────────────┤   │               │metadata:                                  │
+                               │ │   cluster-ip    │   │               │  name: clusterip-sample                   │
+                            ┌──┼─┤     worker      ├───┼──────┐        │spec:                                      │
+                            │  │ └─────────────────┘   │      │        │  nodeSpreadLabel:                         │
+┌───────────────┐           │  │                       │      │        │    topology.kubernetes.io/zone            │
+│ External host │◄──http────┤  └───────────────────────┘    update IP  │status:                                    │
+│ (ifconfig.me) │   get my  │                                 │        │  state: Ready                             │
+└───────────────┘   IP      │                                 │        │  nodeIPs:                                 │
+                            │  ┌───────────────────────┐      │        │  - ip: 74.234.131.27                      │
+                            │  │       zone b          │      └────────┼──► lastUpdateTime: "2023-02-15T23:08:12Z" │
+                            │  │ ┌─────────────────┐   │               │    nodeLabel: zone-a                      │
+                            │  │ │ hostname: node2 │   │               │  - ip: 74.234.189.156                     │
+                            │  │ │ zone: b         │   │      ┌────────┼──► lastUpdateTime: "2023-02-15T23:08:12Z" │
+                            │  │ ├─────────────────┤   │      │        │    nodeLabel: zone-b                      │
+                            │  │ │   cluster-ip    │   │      │        └───────────────────────────────────────────┘
+                            └──┼─┤     worker      ├───┼──────┘
+                               │ └─────────────────┘   │   update IP
+                               │                       │
+                               │ ┌─────────────────┐   │
+                               │ │ hostname: node3 │   │
+                               │ │ zone: b         │   │
+                               │ └─────────────────┘   │
+                               │                       │
+                               └───────────────────────┘
+```
+
