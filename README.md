@@ -5,8 +5,7 @@ Kubernetes component to determine cluster IP
 
 Instalation:
 ```
-kubectl apply -f https://raw.githubusercontent.com/pbochynski/cluster-ip/main/config/samples/zones-clusterip.yaml
-```
+kubectl apply -f https://raw.githubusercontent.com/pbochynski/cluster-ip/main/cluster-ip-operator.yaml
 
 Create a resource:
 
