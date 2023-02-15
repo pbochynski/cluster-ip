@@ -1,4 +1,5 @@
 ## Append samples of your project ##
 resources:
-- operator_v1alpha1_clusterip.yaml
+- nodes-clusterip.yaml
+- zones-clusterip.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

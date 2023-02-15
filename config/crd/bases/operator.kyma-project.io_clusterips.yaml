@@ -33,16 +33,34 @@ spec:
           metadata:
             type: object
           spec:
+            default:
+              nodeSpreadLabel: topology.kubernetes.io/zone
             description: ClusterIPSpec defines the desired state of ClusterIP
             properties:
-              foo:
-                description: Foo is an example field of ClusterIP. Edit clusterip_types.go
-                  to remove/update
+              nodeSpreadLabel:
+                default: topology.kubernetes.io/zone
                 type: string
             type: object
           status:
             description: ClusterIPStatus defines the observed state of ClusterIP
             properties:
+              info:
+                type: string
+              nodeIPs:
+                items:
+                  properties:
+                    ip:
+                      type: string
+                    lastUpdateTime:
+                      format: date-time
+                      type: string
+                    nodeLabel:
+                      type: string
+                  required:
+                  - ip
+                  - nodeLabel
+                  type: object
+                type: array
               state:
                 description: State signifies current state of Module CR. Value can
                   be one of ("Ready", "Processing", "Error", "Deleting").
@@ -52,24 +70,8 @@ spec:
                 - Ready
                 - Error
                 type: string
-              zones:
-                items:
-                  properties:
-                    ip:
-                      type: string
-                    lastUpdateTime:
-                      format: date-time
-                      type: string
-                    zone:
-                      type: string
-                  required:
-                  - ip
-                  - zone
-                  type: object
-                type: array
             required:
             - state
-            - zones
             type: object
         type: object
     served: true

@@ -52,14 +52,16 @@ func main() {
 	var metricsAddr string
 	var enableLeaderElection bool
 	var probeAddr string
-	var zone string
+	var node string
+	var nodeSpreadLabel string
 	var systemNamespace string
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
 		"Enable leader election for controller manager. "+
 			"Enabling this will ensure there is only one active controller manager.")
-	flag.StringVar(&zone, "zone", "", "The zone where controller pod is deployed to")
+	flag.StringVar(&node, "node", "", "The node where controller pod is deployed to")
+	flag.StringVar(&nodeSpreadLabel, "nodeSpreadLabel", "", "The node label used to spread workers")
 	flag.StringVar(&systemNamespace, "system-namespace", "kyma-system", "The namespace where controller helper pods should be deployed")
 
 	opts := zap.Options{
@@ -98,9 +100,10 @@ func main() {
 	if err = (&controller.ClusterIPReconciler{
 		Client:          mgr.GetClient(),
 		Scheme:          mgr.GetScheme(),
-		Zone:            zone,
+		Node:            node,
+		NodeSpreadLabel: nodeSpreadLabel,
 		SystemNamespace: systemNamespace,
-		ZonesIP:         map[string]string{},
+		NodeIP:          map[string]string{},
 		StartTime:       metav1.Now(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ClusterIP")

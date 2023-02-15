@@ -7,6 +7,6 @@ metadata:
     app.kubernetes.io/part-of: cluster-ip
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/created-by: cluster-ip
-  name: clusterip-sample
+  name: clusterip-zones
 spec:
-  # TODO(user): Add fields here
+  nodeSpreadLabel: kubernetes.io/hostname

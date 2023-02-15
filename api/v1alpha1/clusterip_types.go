@@ -25,11 +25,11 @@ type ClusterIPSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of ClusterIP. Edit clusterip_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	//+kubebuilder:default=topology.kubernetes.io/zone
+	NodeSpreadLabel string `json:"nodeSpreadLabel,omitempty"`
 }
-type ZoneIP struct {
-	Zone           string      `json:"zone"`
+type NodeIP struct {
+	NodeLabel      string      `json:"nodeLabel"`
 	IP             string      `json:"ip"`
 	LastUpdateTime metav1.Time `json:"lastUpdateTime,omitempty"`
 }
@@ -40,8 +40,9 @@ type ClusterIPStatus struct {
 	// Value can be one of ("Ready", "Processing", "Error", "Deleting").
 	// +kubebuilder:validation:Required
 	// +kubebuilder:validation:Enum=Processing;Deleting;Ready;Error
-	State string   `json:"state"`
-	Zones []ZoneIP `json:"zones"`
+	State   string   `json:"state"`
+	Info    string   `json:"info,omitempty"`
+	NodeIPs []NodeIP `json:"nodeIPs,omitempty"`
 }
 
 //+kubebuilder:object:root=true
@@ -52,6 +53,7 @@ type ClusterIP struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
+	//+kubebuilder:default={nodeSpreadLabel:"topology.kubernetes.io/zone"}
 	Spec   ClusterIPSpec   `json:"spec,omitempty"`
 	Status ClusterIPStatus `json:"status,omitempty"`
 }
