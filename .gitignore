@@ -25,3 +25,5 @@ Dockerfile.cross
 *.swo
 *~
 .env
+charts/*
+mod/*
