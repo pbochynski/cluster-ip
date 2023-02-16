@@ -1,12 +1,16 @@
 # cluster-ip
 Kubernetes component to determine cluster IP
 
-## Usage
+## Instalation
 
-Instalation:
 ```
 kubectl apply -f https://raw.githubusercontent.com/pbochynski/cluster-ip/main/cluster-ip-operator.yaml
 ```
+
+## Usage
+
+### Get IPs of all nodes
+In this case `cluster-ip` operator will deploy worker in each distinct node using nodeSelector with `kubernetes.io/hostname` label. In the result you will get external IP addresses of all nodes.
 
 Create a resource:
 
@@ -17,7 +21,7 @@ kind: ClusterIP
 metadata:
   name: clusterip-sample
 spec:
-  nodeSpreadLabel: kubernetes.io/hostname  # topology.kubernetes.io/zone is default
+  nodeSpreadLabel: kubernetes.io/hostname
 EOF
 ```
 
@@ -42,8 +46,16 @@ spec:
   nodeSpreadLabel: kubernetes.io/hostname
 status:
   nodeIPs:
-  - ip: 141.95.98.214
-    lastUpdateTime: "2023-02-15T19:36:16Z"
+  - ip: 74.234.131.27
+    lastUpdateTime: "2023-02-16T10:02:08Z"
+    nodeLabel: shoot--kyma--xxxx-l7rs5
+  - ip: 74.234.189.156
+    lastUpdateTime: "2023-02-16T10:02:08Z"
+    nodeLabel: shoot--kyma--xxxx-9676m
+  - ip: 108.143.196.141
+    lastUpdateTime: "2023-02-16T10:02:08Z"
+    nodeLabel: shoot--kyma--xxxx-7dtg4
+  state: Ready
 ```
 
 You can extract all the IPs in all availability zones using this command
@@ -52,11 +64,26 @@ kubectl get clusterips/clusterip-sample -ojson | jq -r '.status.nodeIPs[].ip'
 ```
 with such output:
 ```
-141.95.98.214
+4.234.131.27
+74.234.189.156
+108.143.196.141
+```
+### Multizone scenario with NAT Gateway per availability zone
+
+In this case, we assume that all nodes in the availability zone share the NAT gateway and have the same external IP address. Therefore it is enough to deploy one worker per availability zone using the nodeSelector with the standard `topology.kubernetes.io/zone` label.
+
+```yaml
+cat <<EOF | kubectl apply -f -
+apiVersion: operator.kyma-project.io/v1alpha1
+kind: ClusterIP
+metadata:
+  name: clusterip-sample
+spec:
+  nodeSpreadLabel: topology.kubernetes.io/zone
+EOF
 ```
 
-## How does it work?
-
+Here you can see how what will happen if you have 3 node cluster in 2 availability zones:
 
 ```
                        ┌───────────────────────┐
@@ -90,3 +117,4 @@ with such output:
                        │ └─────────────────┘   │
                        └───────────────────────┘
 ```
+
