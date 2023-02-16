@@ -118,3 +118,6 @@ Here you can see how what will happen if you have 3 node cluster in 2 availabili
                        └───────────────────────┘
 ```
 
+# Disclaimer
+
+The `cluster-ip` operator is experimental and you can use it on your own risk. It is not part of [kyma-project](https://kyma-project.io).
