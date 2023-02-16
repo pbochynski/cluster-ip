@@ -1,5 +1,8 @@
 # cluster-ip
-Kubernetes component to determine cluster IP
+Kubernetes component to determine cluster IP which in most cases is a list of external IPs of cluster nodes. 
+
+| WARNING: the `cluster-ip` operator is experimental and you can use it on your own risk. It is also not part of [kyma-project](https://kyma-project.io) yet (maybe in the future) |
+| --- |
 
 ## Instalation
 
@@ -48,13 +51,13 @@ status:
   nodeIPs:
   - ip: 74.234.131.27
     lastUpdateTime: "2023-02-16T10:02:08Z"
-    nodeLabel: shoot--kyma--xxxx-l7rs5
+    nodeLabel: shoot--xxxx-l7rs5
   - ip: 74.234.189.156
     lastUpdateTime: "2023-02-16T10:02:08Z"
-    nodeLabel: shoot--kyma--xxxx-9676m
+    nodeLabel: shoot--xxxx-9676m
   - ip: 108.143.196.141
     lastUpdateTime: "2023-02-16T10:02:08Z"
-    nodeLabel: shoot--kyma--xxxx-7dtg4
+    nodeLabel: shoot--xxxx-7dtg4
   state: Ready
 ```
 
@@ -124,8 +127,3 @@ You can remove operator and all the resources with:
 ```
 kubectl delete -f https://raw.githubusercontent.com/pbochynski/cluster-ip/main/cluster-ip-operator.yaml
 ```
-
-
-# Disclaimer
-
-The `cluster-ip` operator is experimental and you can use it on your own risk. It is not part of [kyma-project](https://kyma-project.io).
