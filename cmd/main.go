@@ -62,8 +62,11 @@ func main() {
 			"Enabling this will ensure there is only one active controller manager.")
 	flag.StringVar(&node, "node", "", "The node where controller pod is deployed to")
 	flag.StringVar(&nodeSpreadLabel, "nodeSpreadLabel", "", "The node label used to spread workers")
-	flag.StringVar(&systemNamespace, "system-namespace", "kyma-system", "The namespace where controller helper pods should be deployed")
+	flag.StringVar(&systemNamespace, "system-namespace", "", "The namespace where controller helper pods should be deployed")
 
+	if systemNamespace == "" {
+		systemNamespace = os.Getenv("MY_POD_NAMESPACE")
+	}
 	opts := zap.Options{
 		Development: true,
 	}
