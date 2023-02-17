@@ -1,5 +1,5 @@
 # Adds namespace to all resources.
-namespace: kyma-system
+namespace: cluster-ip-system
 
 # Value of this field is prepended to the
 # names of all resources, e.g. a deployment named
@@ -33,4 +33,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: ghcr.io/pbochynski/cluster-ip-module/kyma-project.io/cluster-ip
-  newTag: 0.0.11
+  newTag: 0.0.12

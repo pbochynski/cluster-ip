@@ -1,4 +1,4 @@
-IMAGE_TAG=0.0.11
+IMAGE_TAG=0.0.12
 make docker-build docker-push IMG=ghcr.io/pbochynski/cluster-ip:$IMAGE_TAG
 make deploy IMG=ghcr.io/pbochynski/cluster-ip:$IMAGE_TAG
 kubectl kustomize config/default >cluster-ip-operator.yaml
