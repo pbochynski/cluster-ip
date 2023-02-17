@@ -33,4 +33,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: https://ghcr.io/pbochynski/cluster-ip-module/kyma-project.io/cluster-ip
-  newTag: 0.0.10
+  newTag: 0.0.11
