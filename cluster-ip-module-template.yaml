@@ -13,7 +13,7 @@ metadata:
     "operator.kyma-project.io/descriptor-schema-version": "v2"
 spec:
   target: control-plane
-  channel: regular
+  channel: beta
   data:
     apiVersion: operator.kyma-project.io/v1alpha1
     kind: ClusterIP
