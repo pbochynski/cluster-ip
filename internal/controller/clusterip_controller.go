@@ -109,6 +109,9 @@ func (r *ClusterIPReconciler) GetNodeLabels(ctx context.Context, nodeSpreadLabel
 	var result []string
 	if err == nil {
 		for _, n := range nodes.Items {
+			if len(n.Spec.Taints) > 0 {
+				continue
+			}
 			zone := n.Labels[nodeSpreadLabel]
 			if zone != "" {
 				if !zones[zone] {
