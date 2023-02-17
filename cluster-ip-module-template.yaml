@@ -12,7 +12,7 @@ metadata:
     "operator.kyma-project.io/module-provider": "internal"
     "operator.kyma-project.io/descriptor-schema-version": "v2"
 spec:
-  target: remote
+  target: control-plane
   channel: regular
   data:
     apiVersion: operator.kyma-project.io/v1alpha1
