@@ -32,5 +32,5 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 images:
 - name: controller
-  newName: https://ghcr.io/pbochynski/cluster-ip-module/kyma-project.io/cluster-ip
+  newName: ghcr.io/pbochynski/cluster-ip-module/kyma-project.io/cluster-ip
   newTag: 0.0.11
