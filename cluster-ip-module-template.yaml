@@ -27,7 +27,7 @@ spec:
       name: kyma-project.io/cluster-ip
       provider: internal
       repositoryContexts:
-      - baseUrl: https://ghcr.io/pbochynski/cluster-ip-module
+      - baseUrl: ghcr.io/pbochynski/cluster-ip-module
         componentNameMapping: urlPath
         type: ociRegistry
       resources:
@@ -47,7 +47,7 @@ spec:
         version: 0.0.11
       sources:
       - access:
-          commit: 3270e7f82b7c44b0463e689ecdf2ec49571d39b8
+          commit: e8ec96e0ab104cc1569236ffbfd72e1def454a7b
           ref: refs/heads/main
           repoUrl: github.com/kyma-project/cluster-ip
           type: github
