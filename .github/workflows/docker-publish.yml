@@ -72,7 +72,8 @@ jobs:
             type=semver,pattern={{version}},event=tag
 
       - name: Docker tags
-        run: echo "Docker tags: ${{ steps.meta.outputs.tags }}" 
+        run: |
+          echo "Docker tags: ${{ steps.meta.outputs.tags }}" 
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
