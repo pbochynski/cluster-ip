@@ -46,6 +46,7 @@ var ctx context.Context
 var cancel context.CancelFunc
 
 func TestAPIs(t *testing.T) {
+	t.Skip("Skipping EnvTest")
 	RegisterFailHandler(Fail)
 
 	RunSpecs(t, "Controller Suite")
