@@ -83,31 +83,27 @@ jobs:
         make deploy IMG=$(echo $DOCKER_METADATA_OUTPUT_JSON | jq -r .tags[0])
         make test USE_EXISTING_CLUSTER=true
         
-    # Install the cosign tool except on PR
-    # https://github.com/sigstore/cosign-installer
-    - name: Install cosign
-      if: github.event_name != 'pull_request'
-      uses: sigstore/cosign-installer@f3c664df7af409cb4873aa5068053ba9d61a57b6 #v2.6.0
-      with:
-        cosign-release: 'v1.13.1'
-    # Sign the resulting Docker image digest except on PRs.
-    # This will only write to the public Rekor transparency log when the Docker
-    # repository is public to avoid leaking data.  If you would like to publish
-    # transparency data even for private images, pass --force to cosign below.
-    # https://github.com/sigstore/cosign
-    - name: Sign the published Docker image
-      if: ${{ github.event_name != 'pull_request' }}
-      env:
-        COSIGN_EXPERIMENTAL: "true"
-      # This step uses the identity token to provision an ephemeral certificate
-      # against the sigstore community Fulcio instance.
-      run: echo "${{ steps.meta.outputs.tags }}" | xargs -I {} cosign sign {}@${{ steps.build-and-push.outputs.digest }}
-
-
     - name: Setup tmate session
       if: failure()
       uses: mxschmitt/action-tmate@v3
       with:
         limit-access-to-actor: true
+    
+    - name: Generate release artifacts
+      if: startsWith(github.ref, 'refs/tags/')
+      run: |
+        kubectl kustomize config/default >cluster-ip-operator.yaml
+        curl -Lo kyma https://storage.googleapis.com/kyma-cli-unstable/kyma-linux
+        chmod +x kyma
+        kyma alpha create module -n kyma-project.io/cluster-ip --version $GITHUB_REF_NAME \
+        --registry ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-module -c ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} \
+        -o cluster-ip-module-template.yaml 
 
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          cluster-ip-operator.yaml
+          cluster-ip-module-template.yaml
 
