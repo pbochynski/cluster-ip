@@ -94,7 +94,7 @@ jobs:
         kubectl kustomize config/default >cluster-ip-operator.yaml
         curl -Lo kyma https://storage.googleapis.com/kyma-cli-unstable/kyma-linux
         chmod +x kyma
-        kyma alpha create module -n kyma-project.io/cluster-ip --version $GITHUB_REF_NAME \
+        ./kyma alpha create module -n kyma-project.io/cluster-ip --version $GITHUB_REF_NAME \
         --registry ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-module -c ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} \
         -o cluster-ip-module-template.yaml 
 
