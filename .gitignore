@@ -27,3 +27,4 @@ Dockerfile.cross
 .env
 charts/*
 mod/*
+killercoda.yaml

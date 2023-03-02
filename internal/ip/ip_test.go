@@ -1,11 +1,15 @@
 package ip
 
-import "testing"
+import (
+	"testing"
+)
 
-func TestParallelIP(t *testing.T) {
-	ip, err := GetIP(4)
+func TestValidIP(t *testing.T) {
+	clusterIp, err := GetIP(4)
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err)
 	}
-	t.Logf(ip)
+	if !IsValidIP4(clusterIp) {
+		t.Errorf("'%s' expected to be valid IP", clusterIp)
+	}
 }
