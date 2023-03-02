@@ -6,14 +6,13 @@ name: Docker
 # documentation.
 
 on:
-  schedule:
-    - cron: '40 9 * * *'
   push:
     branches: [ "main" ]
     # Publish semver tags as releases.
     tags: [ '*.*.*' ]
   pull_request:
     branches: [ "main" ]
+  
 
 env:
   # Use docker.io for Docker Hub if empty
@@ -36,6 +35,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+      
 
       # Install the cosign tool except on PR
       # https://github.com/sigstore/cosign-installer
@@ -68,9 +68,12 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
+            type=sha
+            type=semver,pattern={{version}},event=tag
+
+      - name: Docker tags
+        run: |
+          echo "Docker tags: ${{ steps.meta.outputs.tags }}" 
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action

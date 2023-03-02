@@ -18,13 +18,8 @@ package controller
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"os"
-	"regexp"
-	"strings"
 
 	"hash/crc32"
 	s "strings"
@@ -44,6 +39,7 @@ import (
 
 	"github.com/kyma-project/cluster-ip/api/v1alpha1"
 	operatorv1alpha1 "github.com/kyma-project/cluster-ip/api/v1alpha1"
+	"github.com/kyma-project/cluster-ip/internal/ip"
 )
 
 // ClusterIPReconciler reconciles a ClusterIP object
@@ -78,7 +74,7 @@ func (r *ClusterIPReconciler) MyImageName(ctx context.Context) string {
 		}
 	}
 	if imageName == "" {
-		err := fmt.Errorf("Cannot find controller image")
+		err := fmt.Errorf("cannot find controller image")
 		panic(err)
 	}
 	return imageName
@@ -124,21 +120,6 @@ func (r *ClusterIPReconciler) GetNodeLabels(ctx context.Context, nodeSpreadLabel
 		logger.Error(err, "Error, fetching nodes")
 	}
 	return result
-}
-func (r *ClusterIPReconciler) GetExtIP(ctx context.Context) string {
-	logger := log.FromContext(ctx)
-	var result map[string]any
-	resp, err := http.Get("http://ifconfig.me/all.json")
-	if err != nil {
-		panic(err)
-	}
-	body, err := ioutil.ReadAll(resp.Body)
-	json.Unmarshal(body, &result)
-	defer resp.Body.Close()
-	logger.Info("Response", "status", resp.Status, "body", string(body))
-	ip := result["ip_addr"]
-	logger.Info("Response", "IP", ip)
-	return ip.(string)
 }
 
 func (r *ClusterIPReconciler) CreateOrUpdatePod(ctx context.Context, label string, nodeSpreadLabel string, image string) *corev1.Pod {
@@ -193,7 +174,10 @@ func (r *ClusterIPReconciler) ReconcileWorker(ctx context.Context, req ctrl.Requ
 		return ctrl.Result{}, nil
 	}
 
-	ip := r.GetExtIP(ctx)
+	ip, err := ip.GetIP(2)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
 	found := false
 	for i, z := range clusterIP.Status.NodeIPs {
 
@@ -291,7 +275,7 @@ func (r *ClusterIPReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 
 			if s.NodeLabel == z {
 				found = true
-				if validIP4(s.IP) && s.LastUpdateTime.After(r.StartTime.Time) {
+				if ip.IsValidIP4(s.IP) && s.LastUpdateTime.After(r.StartTime.Time) {
 					r.NodeIP[z] = s.IP
 					pod := r.FindZonedPod(ctx, z)
 					r.Delete(ctx, pod)
@@ -333,16 +317,6 @@ func (r *ClusterIPReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	}
 
 	return ctrl.Result{}, nil
-}
-
-func validIP4(ipAddress string) bool {
-	ipAddress = strings.Trim(ipAddress, " ")
-
-	re, _ := regexp.Compile(`^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$`)
-	if re.MatchString(ipAddress) {
-		return true
-	}
-	return false
 }
 
 // SetupWithManager sets up the controller with the Manager.

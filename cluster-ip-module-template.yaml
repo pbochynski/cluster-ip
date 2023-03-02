@@ -1,4 +1,4 @@
-apiVersion: operator.kyma-project.io/v1alpha1
+apiVersion: operator.kyma-project.io/v1beta1
 kind: ModuleTemplate
 metadata:
   name: moduletemplate-cluster-ip
@@ -7,10 +7,6 @@ metadata:
     "operator.kyma-project.io/managed-by": "lifecycle-manager"
     "operator.kyma-project.io/controller-name": "manifest"
     "operator.kyma-project.io/module-name": "cluster-ip"
-  annotations:
-    "operator.kyma-project.io/module-version": "0.0.13"
-    "operator.kyma-project.io/module-provider": "internal"
-    "operator.kyma-project.io/descriptor-schema-version": "v2"
 spec:
   target: control-plane
   channel: beta
@@ -32,28 +28,31 @@ spec:
         type: ociRegistry
       resources:
       - access:
-          digest: sha256:8973f167ea385a23722672763b7bd68dad137923968af279046ca19fedf1155d
-          type: localOciBlob
-        name: cluster-ip
-        relation: local
-        type: helm-chart
-        version: 0.0.13
-      - access:
           digest: sha256:70b0d7ac5080db7a7110c22c04c9796e22b9f807e7b0b2ed07b1bcef58002aa4
           type: localOciBlob
         name: config
         relation: local
         type: yaml
-        version: 0.0.13
+        version: v0.0.14
+      - access:
+          digest: sha256:82ce60f28c12224e589b3c74c1ff66c5c5438cbed9a482bc4ec40d08ddab4b1d
+          type: localOciBlob
+        name: cluster-ip
+        relation: local
+        type: helm-chart
+        version: v0.0.14
       sources:
       - access:
-          commit: 7b10a89c72ff02a06d50f00f0f071d1e75a49e1e
-          ref: refs/heads/main
+          commit: 452f2353d46eac21df1c99e1238e5ef947020ec5
           repoUrl: github.com/kyma-project/cluster-ip
-          type: github
-        name: cluster-ip
+          type: gitHub
+        labels:
+        - name: git.kyma-project.io/ref
+          value: refs/heads/multisvc
+          version: v1
+        name: module-sources
         type: git
-        version: 0.0.13
-      version: 0.0.13
+        version: v0.0.14
+      version: v0.0.14
     meta:
       schemaVersion: v2
