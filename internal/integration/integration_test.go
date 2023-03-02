@@ -10,8 +10,6 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-const IMAGE_NAME = "ghcr.io/pbochynski/cluster-ip"
-
 func retry(fn func() error, interval time.Duration, attempts int) error {
 	err := fn()
 	if err == nil {
@@ -31,14 +29,6 @@ func command(name string, arg ...string) (string, error) {
 	return string(out), err
 }
 
-func getImageTag() (string, error) {
-	imgTag, exists := os.LookupEnv("IMAGE_TAG")
-	if !exists {
-		return command("git", "rev-parse", "--short", "HEAD")
-	}
-	return imgTag, nil
-}
-
 func TestClusterIP(t *testing.T) {
 	if _, useExistingCluster := os.LookupEnv("USE_EXISTING_CLUSTER"); !useExistingCluster {
 		t.Skip("set USE_EXISTING_CLUSTER and make sure kubectl can access it to run integration tests")
@@ -49,22 +39,7 @@ func TestClusterIP(t *testing.T) {
 	}
 	nodes := gjson.Get(json, "items")
 
-	imgTag, err := getImageTag()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	out, err := command("make", "-C", "../..", "install")
-	if err != nil {
-		t.Fatal(err, out)
-	}
-
-	out, err = command("make", "-C", "../..", "deploy", "IMG="+IMAGE_NAME+":"+imgTag)
-	if err != nil {
-		t.Fatal(err, out)
-	}
-
-	out, err = command("kubectl", "apply", "-f", "../../config/samples/nodes-clusterip.yaml")
+	out, err := command("kubectl", "apply", "-f", "../../config/samples/nodes-clusterip.yaml")
 	if err != nil {
 		t.Fatal(err, out)
 	}
