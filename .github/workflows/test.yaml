@@ -80,7 +80,7 @@ jobs:
         cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
         chmod 600 ~/.kube/config
         make install
-        make deploy IMG=$DOCKER_METADATA_OUTPUT_TAGS
+        make deploy IMG=$(echo $DOCKER_METADATA_OUTPUT_JSON | jq -r .tags[0])
         make test USE_EXISTING_CLUSTER=true
         
     # Install the cosign tool except on PR
