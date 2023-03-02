@@ -123,7 +123,7 @@ Here you can see how what will happen if you have 3 node cluster in 2 availabili
 
 ## Clean up
 
-You can remove operator and all the resources with:
+You can remove the operator and all the resources with:
 ```
 kubectl delete -f https://raw.githubusercontent.com/pbochynski/cluster-ip/main/cluster-ip-operator.yaml
 ```
