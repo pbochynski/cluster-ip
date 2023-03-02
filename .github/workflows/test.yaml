@@ -60,6 +60,10 @@ jobs:
         mkdir -p ~/.kube
         cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
         chmod 600 ~/.kube/config
+        make install
+        make deploy IMG=$DOCKER_METADATA_OUTPUT_TAGS
+        make test USE_EXISTING_CLUSTER=true
+        
 
     - name: Setup tmate session
       uses: mxschmitt/action-tmate@v3
