@@ -89,7 +89,7 @@ jobs:
         curl -Lo kyma https://storage.googleapis.com/kyma-cli-unstable/kyma-linux
         chmod +x kyma
         ./kyma alpha create module -n kyma-project.io/cluster-ip --version $GITHUB_REF_NAME \
-        --registry ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-module -t ${{ secrets.GITHUB_TOKEN }} \
+        --registry ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-module -t ${{ secrets.PB_SECRET }} \
         -o cluster-ip-module-template.yaml -v
 
     - name: Setup tmate session
