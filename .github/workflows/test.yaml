@@ -92,7 +92,7 @@ jobs:
         chmod +x kyma
         ./kyma alpha create module -n kyma-project.io/cluster-ip --version $GITHUB_REF_NAME \
         --registry ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-module -t ${{ secrets.GITHUB_TOKEN }} \
-        -o cluster-ip-module-template.yaml 
+        -o cluster-ip-module-template.yaml -v
 
     - name: Setup tmate session
       if: failure()
