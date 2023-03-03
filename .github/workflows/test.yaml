@@ -83,10 +83,6 @@ jobs:
         make deploy IMG=$(echo $DOCKER_METADATA_OUTPUT_JSON | jq -r .tags[0])
         make test USE_EXISTING_CLUSTER=true
         
-    # - name: Setup tmate session
-    #   uses: mxschmitt/action-tmate@v3
-    #   with:
-    #     limit-access-to-actor: true
     
     - name: Generate release artifacts
       if: startsWith(github.ref, 'refs/tags/')
@@ -97,6 +93,12 @@ jobs:
         ./kyma alpha create module -n kyma-project.io/cluster-ip --version $GITHUB_REF_NAME \
         --registry ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-module -c ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} \
         -o cluster-ip-module-template.yaml 
+
+    - name: Setup tmate session
+      if: failure()
+      uses: mxschmitt/action-tmate@v3
+      with:
+        limit-access-to-actor: true
 
     - name: Release
       uses: softprops/action-gh-release@v1
