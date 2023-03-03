@@ -1,3 +1,5 @@
+[![Tests](https://github.com/pbochynski/cluster-ip/actions/workflows/test.yaml/badge.svg)](https://github.com/pbochynski/cluster-ip/actions/workflows/test.yaml)
+
 # cluster-ip
 Kubernetes component to determine cluster IP which in most cases is a list of external IPs of cluster nodes. 
 
