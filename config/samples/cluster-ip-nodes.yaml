@@ -1,6 +1,6 @@
 apiVersion: operator.kyma-project.io/v1alpha1
 kind: ClusterIP
 metadata:
-  name: clusterip-nodes
+  name: cluster-ip-nodes
 spec:
   nodeSpreadLabel: kubernetes.io/hostname

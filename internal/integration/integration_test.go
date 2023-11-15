@@ -39,7 +39,7 @@ func TestClusterIP(t *testing.T) {
 	}
 	nodes := gjson.Get(json, "items")
 
-	out, err := command("kubectl", "apply", "-f", "../../config/samples/nodes-clusterip.yaml")
+	out, err := command("kubectl", "apply", "-f", "../../config/samples/cluster-ip-nodes.yaml")
 	if err != nil {
 		t.Fatal(err, out)
 	}
