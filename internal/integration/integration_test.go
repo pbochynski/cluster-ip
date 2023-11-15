@@ -45,7 +45,7 @@ func TestClusterIP(t *testing.T) {
 	}
 
 	err = retry(func() error {
-		json, err := command("kubectl", "get", "clusterip", "clusterip-nodes", "-ojson")
+		json, err := command("kubectl", "get", "clusterip", "cluster-ip-nodes", "-ojson")
 		if err != nil {
 			return err
 		}
