@@ -29,7 +29,7 @@ jobs:
       uses: actions/setup-go@v3
       with:
         go-version: 1.22
-        cache: false
+        cache: true
 
     - name: Build
       run: go build -v ./...
@@ -88,11 +88,6 @@ jobs:
       run: |
         kubectl kustomize config/default >cluster-ip-operator.yaml
 
-    - name: Setup tmate session
-      if: failure()
-      uses: mxschmitt/action-tmate@v3
-      with:
-        limit-access-to-actor: true
 
     - name: Release
       uses: softprops/action-gh-release@v1
