@@ -78,8 +78,8 @@ jobs:
         mkdir -p ~/.kube
         cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
         chmod 600 ~/.kube/config
-        make install
-        make deploy IMG=$(echo $DOCKER_METADATA_OUTPUT_JSON | jq -r .tags[0])
+        kubectl kustomize config/default >cluster-ip-operator.yaml
+        kubectl apply -f cluster-ip-operator.yaml
         make test USE_EXISTING_CLUSTER=true
         
     
