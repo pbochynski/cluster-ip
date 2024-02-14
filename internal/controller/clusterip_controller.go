@@ -35,7 +35,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	"github.com/kyma-project/cluster-ip/api/v1alpha1"
 	operatorv1alpha1 "github.com/kyma-project/cluster-ip/api/v1alpha1"
@@ -215,8 +214,7 @@ func (r *ClusterIPReconciler) ReconcileWorker(ctx context.Context, req ctrl.Requ
 
 	return ctrl.Result{}, nil
 }
-func (r *ClusterIPReconciler) NodeWatcherToRequests(node client.Object) []reconcile.Request {
-	ctx := context.TODO()
+func (r *ClusterIPReconciler) NodeWatcherToRequests(ctx context.Context, node client.Object) []reconcile.Request {
 	var clusterIPs v1alpha1.ClusterIPList
 	err := r.List(ctx, &clusterIPs)
 	if err != nil {
@@ -323,6 +321,6 @@ func (r *ClusterIPReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 func (r *ClusterIPReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&operatorv1alpha1.ClusterIP{}).
-		Watches(&source.Kind{Type: &corev1.Node{}}, handler.EnqueueRequestsFromMapFunc(r.NodeWatcherToRequests), builder.WithPredicates(predicate.ResourceVersionChangedPredicate{})).
+		Watches(&corev1.Node{}, handler.EnqueueRequestsFromMapFunc(r.NodeWatcherToRequests), builder.WithPredicates(predicate.ResourceVersionChangedPredicate{})).
 		Complete(r)
 }
