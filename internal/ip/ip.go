@@ -3,7 +3,7 @@ package ip
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"regexp"
 	"strings"
@@ -40,15 +40,23 @@ func (p *IPService) Check() providerResponse {
 	if err != nil {
 		return providerResponse{err: err}
 	}
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return providerResponse{err: err}
 	}
 	json.Unmarshal(body, &result)
 	defer res.Body.Close()
-	ip := result[p.jsonPath]
+	ipVal, ok := result[p.jsonPath]
+	if !ok || ipVal == nil {
+		return providerResponse{err: fmt.Errorf("missing or nil IP field '%s' in response from %s", p.jsonPath, p.url)}
+	}
 
-	return providerResponse{name: p.name, res: *res, url: p.url, ip: ip.(string)}
+	ipStr, ok := ipVal.(string)
+	if !ok {
+		return providerResponse{err: fmt.Errorf("invalid IP format: expected string, got %T", ipVal)}
+	}
+
+	return providerResponse{name: p.name, res: *res, url: p.url, ip: ipStr}
 }
 
 func (p *IPService) Name() string {
@@ -97,8 +105,8 @@ var (
 func GetIP(min int) (string, error) {
 	// Make buffered channels
 	buffer := len(providers)
-	jobsPipe := make(chan IPService, buffer)           // Jobs will be of type `Tap`
-	resultsPipe := make(chan providerResponse, buffer) // Results will be of type `testerResponse`
+	jobsPipe := make(chan IPService, buffer)           // Jobs will be of type `IPService`
+	resultsPipe := make(chan providerResponse, buffer) // Results will be of type `providerResponse`
 
 	for i := 0; i < buffer; i++ {
 		go worker(jobsPipe, resultsPipe)
